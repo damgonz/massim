@@ -18,6 +18,9 @@ import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
 
+import org.jgrapht.*;
+import org.jgrapht.graph.*;
+
 /**
  * This class represents a simple agent. Note that is is an abstract class, that is
  * that you are supposed to inherit from this class in order to implement
@@ -57,6 +60,8 @@ public abstract class Agent {
     	agentsTeams = new HashMap<String,String>();
 	}
 	
+        protected static UndirectedGraph<String, DefaultEdge> stringGraph = new SimpleGraph(DefaultEdge.class);
+
 	/**
 	 * Initializes an agent with a given name. Ensures that the name is unique.
 	 * @param name is the name of the agent
