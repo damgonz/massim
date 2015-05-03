@@ -240,7 +240,7 @@ public abstract class Agent {
                             }
                         }
 
-                        // Now add weights to edges that have been probed
+                        // Now add weights to edges that have been surveyed
                         for ( Percept p :ret ) {
                             if ( p.getName().equals("surveyedEdge")) {
                                 String vertex1 = p.getParameters().get(0).toString();

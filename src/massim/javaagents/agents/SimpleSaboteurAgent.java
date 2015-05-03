@@ -56,7 +56,12 @@ public class SimpleSaboteurAgent extends Agent {
 		removeBeliefs("visibleEntity");
 		removeBeliefs("visibleEdge");
 		for ( Percept p : percepts ) {
-			if ( p.getName().equals("step") ) {
+                    /*
+                    if (p.getName().equals("role")) {
+                        println(this.getName() + " with role Saboteour is assigned role " + p.getParameters().get(0).toString());
+                    } else 
+                            */
+                            if ( p.getName().equals("step") ) {
 				println(p);
 			}
 			else if ( p.getName().equals("visibleEntity") ) {

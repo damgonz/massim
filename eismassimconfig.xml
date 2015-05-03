@@ -11,7 +11,7 @@
     <entity name="connectionA8" username="a8" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionA9" username="a9" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionA10" username="a10" password="1" iilang="yes" xml="yes"/>
-    <!--<entity name="connectionA11" username="a11" password="1" iilang="yes" xml="yes"/>
+    <entity name="connectionA11" username="a11" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionA12" username="a12" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionA13" username="a13" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionA14" username="a14" password="1" iilang="yes" xml="yes"/>
@@ -28,7 +28,7 @@
     <entity name="connectionA25" username="a25" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionA26" username="a26" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionA27" username="a27" password="1" iilang="yes" xml="yes"/>
-    <entity name="connectionA28" username="a28" password="1" iilang="yes" xml="yes"/>-->
+    <entity name="connectionA28" username="a28" password="1" iilang="yes" xml="yes"/>
     
     <entity name="connectionB1" username="b1" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionB2" username="b2" password="1" iilang="yes" xml="yes"/>
@@ -40,7 +40,7 @@
     <entity name="connectionB8" username="b8" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionB9" username="b9" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionB10" username="b10" password="1" iilang="yes" xml="yes"/>
-    <!--<entity name="connectionB11" username="b11" password="1" iilang="yes" xml="yes"/>
+    <entity name="connectionB11" username="b11" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionB12" username="b12" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionB13" username="b13" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionB14" username="b14" password="1" iilang="yes" xml="yes"/>
@@ -57,6 +57,6 @@
     <entity name="connectionB25" username="b25" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionB26" username="b26" password="1" iilang="yes" xml="yes"/>
     <entity name="connectionB27" username="b27" password="1" iilang="yes" xml="yes"/>
-    <entity name="connectionB28" username="b28" password="1" iilang="yes" xml="yes"/>-->
+    <entity name="connectionB28" username="b28" password="1" iilang="yes" xml="yes"/>
   </entities>
 </interfaceConfig>

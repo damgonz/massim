@@ -25,12 +25,13 @@ public class SimpleRepairerAgent extends Agent {
 	@Override
 	public Action step() {
 
+            /*
 		if ( rechargeSteps > 0 ) {
 			rechargeSteps --;
 			println("recharging...");
-			return MarsUtil.skipAction();
+			return MarsUtil.rechargeAction();
 		}
-		
+            */
 		Collection<Message> messages = getMessages();
 		Vector<String> needyAgents = new Vector<String>();
 		for ( Message msg : messages ) {
@@ -48,7 +49,11 @@ public class SimpleRepairerAgent extends Agent {
 		Collection<Percept> percepts = getAllPercepts();
 		String position = null;
 		for ( Percept p : percepts ) {
-			if ( p.getName().equals("lastActionResult") && p.getParameters().get(0).toProlog().equals("failed") ) {
+                    /*
+                    if (p.getName().equals("role")) {
+                        println(this.getName() + " with role Repairer is assigned role " + p.getParameters().get(0).toString());
+                    } else 
+                            */if ( p.getName().equals("lastActionResult") && p.getParameters().get(0).toProlog().equals("failed") ) {
 				println("my previous action has failed. recharging...");
 				rechargeSteps = 10;
 				return MarsUtil.skipAction();

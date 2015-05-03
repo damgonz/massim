@@ -91,7 +91,12 @@ public class SimpleExplorerAgent extends Agent {
                 // may want to check for "edges" and "vertices,
                 // to know if we've completed the map.
 		for ( Percept p : percepts ) {
-			if ( p.getName().equals("step") ) {
+                    /*
+                    if (p.getName().equals("role")) {
+                        println(this.getName() + " with role Explorer is assigned role " + p.getParameters().get(0).toString());
+                    } else 
+                    */
+                    if ( p.getName().equals("step") ) {
 				println(p);
 			}
 			else if ( p.getName().equals("visibleEntity") ) {
