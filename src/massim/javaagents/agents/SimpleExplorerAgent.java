@@ -88,6 +88,8 @@ public class SimpleExplorerAgent extends Agent {
 		//if ( gatherSpecimens ) processSpecimens(percepts);
 		removeBeliefs("visibleEntity");
 		removeBeliefs("visibleEdge");
+                // may want to check for "edges" and "vertices,
+                // to know if we've completed the map.
 		for ( Percept p : percepts ) {
 			if ( p.getName().equals("step") ) {
 				println(p);
@@ -114,12 +116,15 @@ public class SimpleExplorerAgent extends Agent {
 					println("I perceive the value of a vertex that I have not known before");
 					addBelief(b);
 					broadcastBelief(b);
+                                        // so, it looks like here I can add values to vertex,
+                                        // only the explorer can do it.
 				}
 				else {
 					//println("I already knew " + b);
 				}
 			}
 			else if ( p.getName().equals("surveyedEdge") ) {
+                                // this is where we add values of edges to the map
 				LogicBelief b = MarsUtil.perceptToBelief(p);
 				if ( containsBelief(b) == false ) {
 					println("I perceive the weight of an edge that I have not known before");
@@ -142,6 +147,7 @@ public class SimpleExplorerAgent extends Agent {
 				position = p.getParameters().get(0).toString();
 				removeBeliefs("position");
 				addBelief(new LogicBelief("position",position));
+                                // This is where we start our calculation of how to get somewhere.
 			}
 			else if ( p.getName().equals("energy") ) {
 				Integer energy = new Integer(p.getParameters().get(0).toString());
@@ -161,10 +167,15 @@ public class SimpleExplorerAgent extends Agent {
 			else if ( p.getName().equals("achievement") ) {
 				println("reached achievement " + p);
 			}
+                        // may want to check for ranking and/or score,
+                        // in case we wanted to shift to agressive
+                        // or conservative strategies.
+                        // strenght could affect whether to attack or not.
 		}
 		
 		// again for checking neighbors
 		this.removeBeliefs("neighbor");
+                // here, neighbor vertices are added to our beliefs.
 		for ( Percept p : percepts ) {
 			if ( p.getName().equals("visibleEdge") ) {
 				String vertex1 = p.getParameters().get(0).toString();

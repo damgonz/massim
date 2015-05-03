@@ -216,26 +216,30 @@ public abstract class Agent {
 			}
 			
                         // contribute to creating the map.
-                        // TODO: Check if the library is protected against duplicates.
                         // TODO: No values are added for visible edges or vertices.
                         //   That needs to be added in the "probe" action, most likely.
                         // First add all visible vertices
                         for ( Percept p : ret ) {
                             if ( p.getName().equals("visibleVertex")) {
                                 String vertexName = p.getParameters().get(0).toString();
-                                println (this.getName() + " adding vertex " + vertexName + " to map");
-                                mapGraph.addVertex(vertexName); // assuming first argument is the vertex name
+                                if (!mapGraph.containsVertex(vertexName)) {
+                                    println (this.getName() + " adding vertex " + vertexName + " to map");
+                                    mapGraph.addVertex(vertexName); // assuming first argument is the vertex name
+                                }
                             }
                         }
                         // Then all visible edges
                         for ( Percept p :ret ) {
                             if ( p.getName().equals("visibleEdge")) {
-                                String edgeVOne = p.getParameters().get(0).toString();
-                                String edgeVTwo = p.getParameters().get(1).toString();
-                                println (this.getName() + " adding edge " + edgeVOne + " " + edgeVTwo + " to map");
-                                mapGraph.addEdge(edgeVOne, edgeVTwo);
+                                String vertex1 = p.getParameters().get(0).toString();
+                                String vertex2 = p.getParameters().get(1).toString();
+                                if (!mapGraph.containsEdge(vertex1, vertex2)) {
+                                    println (this.getName() + " adding edge " + vertex1 + " " + vertex2 + " to map");
+                                    mapGraph.addEdge(vertex1, vertex2);
+                                }
                             }
                         }
+
 			// sweep mental attitudes if there has been a restart 
 			// TODO maybe use simulation-id
 			int step = -1;
