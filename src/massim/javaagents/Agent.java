@@ -59,8 +59,8 @@ public abstract class Agent {
     	messages = new LinkedList<Message>();
     	agentsTeams = new HashMap<String,String>();
 	}
-	
-        protected static UndirectedGraph<String, DefaultEdge> mapGraph = new SimpleGraph(DefaultEdge.class);
+
+        protected static SimpleWeightedGraph<String, DefaultWeightedEdge> mapGraph = new SimpleWeightedGraph(DefaultWeightedEdge.class);
 
 	/**
 	 * Initializes an agent with a given name. Ensures that the name is unique.
@@ -236,6 +236,28 @@ public abstract class Agent {
                                 if (!mapGraph.containsEdge(vertex1, vertex2)) {
                                     println (this.getName() + " adding edge " + vertex1 + " " + vertex2 + " to map");
                                     mapGraph.addEdge(vertex1, vertex2);
+                                }
+                            }
+                        }
+
+                        // Now add weights to edges that have been probed
+                        for ( Percept p :ret ) {
+                            if ( p.getName().equals("surveyedEdge")) {
+                                String vertex1 = p.getParameters().get(0).toString();
+                                String vertex2 = p.getParameters().get(1).toString();
+                                double weight = Double.parseDouble(p.getParameters().get(2).toString());
+                                if (mapGraph.containsEdge(vertex1, vertex2)) {
+                                    DefaultWeightedEdge currentEdge = mapGraph.getEdge(vertex1, vertex2);
+                                    if (mapGraph.getEdgeWeight(currentEdge) == 1) {
+                                        // Only add weights different from the default
+                                        println (this.getName() + " adding weight " + weight + " to edge " + vertex1 + " " + vertex2);
+                                        mapGraph.setEdgeWeight(currentEdge, weight);
+                                    }
+                                } else {
+                                /* else do nothing, not likely to get weights of
+                                   edges not yet sighted.
+                                */
+                                    println("Got weight for a non-existent edge!");
                                 }
                             }
                         }
