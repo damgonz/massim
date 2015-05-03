@@ -60,7 +60,7 @@ public abstract class Agent {
     	agentsTeams = new HashMap<String,String>();
 	}
 	
-        protected static UndirectedGraph<String, DefaultEdge> stringGraph = new SimpleGraph(DefaultEdge.class);
+        protected static UndirectedGraph<String, DefaultEdge> mapGraph = new SimpleGraph(DefaultEdge.class);
 
 	/**
 	 * Initializes an agent with a given name. Ensures that the name is unique.
@@ -215,6 +215,27 @@ public abstract class Agent {
 				ret.addAll(ps);
 			}
 			
+                        // contribute to creating the map.
+                        // TODO: Check if the library is protected against duplicates.
+                        // TODO: No values are added for visible edges or vertices.
+                        //   That needs to be added in the "probe" action, most likely.
+                        // First add all visible vertices
+                        for ( Percept p : ret ) {
+                            if ( p.getName().equals("visibleVertex")) {
+                                String vertexName = p.getParameters().get(0).toString();
+                                println (this.getName() + " adding vertex " + vertexName + " to map");
+                                mapGraph.addVertex(vertexName); // assuming first argument is the vertex name
+                            }
+                        }
+                        // Then all visible edges
+                        for ( Percept p :ret ) {
+                            if ( p.getName().equals("visibleEdge")) {
+                                String edgeVOne = p.getParameters().get(0).toString();
+                                String edgeVTwo = p.getParameters().get(1).toString();
+                                println (this.getName() + " adding edge " + edgeVOne + " " + edgeVTwo + " to map");
+                                mapGraph.addEdge(edgeVOne, edgeVTwo);
+                            }
+                        }
 			// sweep mental attitudes if there has been a restart 
 			// TODO maybe use simulation-id
 			int step = -1;
