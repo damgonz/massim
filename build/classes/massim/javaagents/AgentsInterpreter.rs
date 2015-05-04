@@ -1,2 +1,0 @@
-massim.javaagents.AgentsInterpreter
-massim.javaagents.AgentSpec
