@@ -17,8 +17,11 @@ import eis.exceptions.NoEnvironmentException;
 import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jgrapht.*;
+import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.*;
 
 /**
@@ -463,5 +466,27 @@ public abstract class Agent {
 	public void clearGoals() {
 		goals.clear();
 	}
-
+        
+        public List getShortestPathVertexList(String startVertex, String endVertex) {
+            DijkstraShortestPath shortestPath = 
+                    new DijkstraShortestPath(mapGraph, startVertex, endVertex);
+        
+            return Graphs.getPathVertexList(shortestPath.getPath());
+        }
+        
+        public double getShortestPathVertexListWeight(String startVertex, String endVertex) {
+            double ret = 0;
+            List<String> pathVertexList = new ArrayList<String>();
+            
+            pathVertexList = (ArrayList) getShortestPathVertexList(startVertex, endVertex);
+            
+            for(int i = 0; i < (pathVertexList.size() - 1); i++)
+            {
+                DefaultWeightedEdge currentEdge = 
+                        mapGraph.getEdge(pathVertexList.get(i), pathVertexList.get(i + 1));
+                ret = ret + mapGraph.getEdgeWeight(currentEdge);
+            }
+            
+            return ret;
+        }
 }
