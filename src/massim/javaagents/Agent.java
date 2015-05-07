@@ -468,23 +468,36 @@ public abstract class Agent {
 	}
         
         public List getShortestPathVertexList(String startVertex, String endVertex) {
-            DijkstraShortestPath shortestPath = 
-                    new DijkstraShortestPath(mapGraph, startVertex, endVertex);
-        
-            return Graphs.getPathVertexList(shortestPath.getPath());
+            if(mapGraph.containsVertex(startVertex) && mapGraph.containsVertex(endVertex))
+            {
+                DijkstraShortestPath shortestPath = 
+                        new DijkstraShortestPath(mapGraph, startVertex, endVertex);
+            
+                if(shortestPath.getPath() != null)
+                {
+                    return Graphs.getPathVertexList(shortestPath.getPath());
+                }
+            }
+            return null;
         }
         
         public double getShortestPathVertexListWeight(String startVertex, String endVertex) {
             double ret = 0;
             List<String> pathVertexList = new ArrayList<String>();
             
-            pathVertexList = (ArrayList) getShortestPathVertexList(startVertex, endVertex);
-            
-            for(int i = 0; i < (pathVertexList.size() - 1); i++)
+            if(mapGraph.containsVertex(startVertex) && mapGraph.containsVertex(endVertex))
             {
-                DefaultWeightedEdge currentEdge = 
-                        mapGraph.getEdge(pathVertexList.get(i), pathVertexList.get(i + 1));
-                ret = ret + mapGraph.getEdgeWeight(currentEdge);
+                pathVertexList = (ArrayList) getShortestPathVertexList(startVertex, endVertex);
+
+                if(pathVertexList != null)
+                {
+                    for(int i = 0; i < (pathVertexList.size() - 1); i++)
+                    {
+                        DefaultWeightedEdge currentEdge = 
+                                mapGraph.getEdge(pathVertexList.get(i), pathVertexList.get(i + 1));
+                        ret = ret + mapGraph.getEdgeWeight(currentEdge);
+                    }
+                }
             }
             
             return ret;
