@@ -109,18 +109,18 @@ public class SimpleInspectorAgent extends Agent {
 			else if ( p.getName().equals("inspectedEntity") ) {
 				println("I have perceived an inspected entity " + p);
 			}
+                        else if ( p.getName().equals("position") ) {
+				position = p.getParameters().get(0).toString();
+				removeBeliefs("position");
+				addBelief(new LogicBelief("position",position));
+			}
 			else if ( p.getName().equals("health")) {
 				Integer health = new Integer(p.getParameters().get(0).toString());
 				println("my health is " +health );
 				if ( health.intValue() == 0 ) {
 					println("my health is zero. asking for help");
-					broadcastBelief(new LogicBelief("iAmDisabled"));
+					broadcastBelief(new LogicBelief("iAmDisabled", position));
 				}
-			}
-			else if ( p.getName().equals("position") ) {
-				position = p.getParameters().get(0).toString();
-				removeBeliefs("position");
-				addBelief(new LogicBelief("position",position));
 			}
 			else if ( p.getName().equals("energy") ) {
 				Integer energy = new Integer(p.getParameters().get(0).toString());

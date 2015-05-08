@@ -9,13 +9,18 @@ import apltk.interpreter.data.LogicGoal;
 import apltk.interpreter.data.Message;
 import eis.iilang.Action;
 import eis.iilang.Percept;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import massim.javaagents.Agent;
 
 public class SimpleRepairerAgent extends Agent {
 
-    int rechargeSteps = 0;
+    protected static final boolean NORMAL = true;
+    protected static final boolean DISABLED = false;
+    boolean state = NORMAL;
     Vector<String> needyAgents = new Vector<String>();
+    Vector<String> needyAgentsLocation = new Vector<String>();
 
     public SimpleRepairerAgent(String name, String team) {
         super(name, team);
@@ -27,7 +32,7 @@ public class SimpleRepairerAgent extends Agent {
 
     @Override
     public Action step() {
-        
+
         handleMessages();
         handlePercepts();
 
@@ -40,30 +45,39 @@ public class SimpleRepairerAgent extends Agent {
         }
 
         // 2. repair if necessary
-        act = planRepair();
-        if (act != null) {
-            return act;
-        }
-        
+        /*if(state == NORMAL)
+        {*/
+            act = planRepair();
+            if (act != null) {
+                return act;
+            }
+        //}
+
         // 3. buying battery with a certain probability
         act = planBuyBattery();
         if (act != null) {
             return act;
         }
-                
+
         // 4. surveying if necessary
-        act = planSurvey();
-        if (act != null) {
-            return act;
-        }
+        /*if(state == NORMAL)
+        {*/
+            act = planSurvey();
+            if (act != null) {
+                return act;
+            }
+        //}
 
         // 5. (almost) random walking
-        act = planRandomWalk();
-        if (act != null) {
-            return act;
-        }
+        /*if(state == NORMAL)
+        {*/
+            act = planWalk();
+            if (act != null) {
+                return act;
+            }
+        //}
 
-        return MarsUtil.skipAction();
+        return null;
 
     }
 
@@ -71,9 +85,11 @@ public class SimpleRepairerAgent extends Agent {
 
         Collection<Message> messages = getMessages();
         needyAgents.clear();
+        needyAgentsLocation.clear();
         for (Message msg : messages) {
             if (((LogicBelief) msg.value).getPredicate().equals("iAmDisabled")) {
                 needyAgents.add(msg.sender);
+                needyAgentsLocation.add(((LogicBelief) msg.value).getParameters().firstElement());
             }
         }
 
@@ -137,17 +153,21 @@ public class SimpleRepairerAgent extends Agent {
                 } else {
                     //println("I already knew " + b);
                 }
+            } else if (p.getName().equals("position")) {
+                position = p.getParameters().get(0).toString();
+                removeBeliefs("position");
+                addBelief(new LogicBelief("position", position));
             } else if (p.getName().equals("health")) {
                 Integer health = new Integer(p.getParameters().get(0).toString());
                 println("my health is " + health);
                 if (health.intValue() == 0) {
                     println("my health is zero. asking for help");
-                    broadcastBelief(new LogicBelief("iAmDisabled"));
+                    state = DISABLED;
+                    broadcastBelief(new LogicBelief("iAmDisabled", position));
                 }
-            } else if (p.getName().equals("position")) {
-                position = p.getParameters().get(0).toString();
-                removeBeliefs("position");
-                addBelief(new LogicBelief("position", position));
+                else {
+                    state = NORMAL;
+                }
                 // This is where we start our calculation of how to get somewhere.
             } else if (p.getName().equals("energy")) {
                 Integer energy = new Integer(p.getParameters().get(0).toString());
@@ -194,14 +214,14 @@ public class SimpleRepairerAgent extends Agent {
         beliefs = getAllBeliefs("energy");
         if (beliefs.size() == 0) {
             println("strangely I do not know my energy");
-            return MarsUtil.skipAction();
+            return null;
         }
         int energy = new Integer(beliefs.getFirst().getParameters().firstElement()).intValue();
 
         beliefs = getAllBeliefs("maxEnergy");
         if (beliefs.size() == 0) {
             println("strangely I do not know my maxEnergy");
-            return MarsUtil.skipAction();
+            return null;
         }
         int maxEnergy = new Integer(beliefs.getFirst().getParameters().firstElement()).intValue();
 
@@ -320,12 +340,10 @@ public class SimpleRepairerAgent extends Agent {
     }
 
     private Action planRepair() {
-        LinkedList<LogicBelief> beliefs = null;
-
-        beliefs = getAllBeliefs("position");
+        LinkedList<LogicBelief> beliefs = getAllBeliefs("position");
         if (beliefs.size() == 0) {
             println("strangely I do not know my position");
-            return MarsUtil.skipAction();
+            return null;
         }
         String position = beliefs.getFirst().getParameters().firstElement();
 
@@ -336,7 +354,7 @@ public class SimpleRepairerAgent extends Agent {
             String ePos = b.getParameters().get(1);
             String eName = b.getParameters().get(0);
             if (ePos.equals(position) && needyAgents.contains(eName)) {
-                println("I am going to repair " + eName);
+                println("I am going to repair: " + eName);
                 return MarsUtil.repairAction(eName);
             }
         }
@@ -355,6 +373,7 @@ public class SimpleRepairerAgent extends Agent {
                 neighbors.add(vertex1);
             }
         }
+        
         beliefs.clear();
         beliefs = getAllBeliefs("visibleEntity");
         for (LogicBelief b : beliefs) {
@@ -369,30 +388,41 @@ public class SimpleRepairerAgent extends Agent {
         // goto neighbors
         if (neighbors.size() == 0) {
             println("Strangely I do not know my neighbors");
-            return MarsUtil.skipAction();
+            return null;
         }
 
         return null;
     }
 
-    private Action planRandomWalk() {
+    private Action planWalk() {
+        List<String> pathVertexList = new ArrayList<String>();
+        String position = new String();
+        String agentName = new String();
+        double pathVertexListWeight = 1000;
 
-        LinkedList<LogicBelief> beliefs = getAllBeliefs("neighbor");
-        Vector<String> neighbors = new Vector<String>();
-        for (LogicBelief b : beliefs) {
-            neighbors.add(b.getParameters().firstElement());
+        LinkedList<LogicBelief> beliefs = getAllBeliefs("position");
+        if (beliefs.size() == 0) {
+            println("strangely I do not know my position");
+            return null;
+        }
+        position = beliefs.getFirst().getParameters().firstElement();
+        
+        if (!needyAgents.isEmpty() && !needyAgentsLocation.isEmpty()) {
+            for (int i = 0; i < needyAgentsLocation.size(); i++) {
+                    double pvlw = getShortestPathVertexListWeight(position,
+                            needyAgentsLocation.get(i));
+                    if (pvlw < pathVertexListWeight && pvlw >= 1.0) {
+                        pathVertexList = getShortestPathVertexList(position,
+                                needyAgentsLocation.get(i));
+                        agentName = needyAgents.get(i);
+                    }
+            }
+            if (pathVertexList.size() >= 2) {
+                println("I am going to repair " + agentName + ". move to " + pathVertexList.get(1) + " first!.");
+                return MarsUtil.gotoAction(pathVertexList.get(1));
+            }
         }
 
-        if (neighbors.size() == 0) {
-            println("strangely I do not know any neighbors");
-            return MarsUtil.skipAction();
-        }
-
-        // goto neighbors
-        Collections.shuffle(neighbors);
-        String neighbor = neighbors.firstElement();
-        println("I will go to " + neighbor);
-        return MarsUtil.gotoAction(neighbor);
-
+        return null;
     }
 }
