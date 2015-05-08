@@ -47,7 +47,7 @@ public class SimpleExplorerAgent extends Agent {
 		if ( act != null ) return act;
 				
 		// 5. (almost) random walking
-		act = planWalk();
+		act = planRandomWalk();
 		if ( act != null ) return act;
 
 		return MarsUtil.skipAction();
@@ -379,9 +379,8 @@ public class SimpleExplorerAgent extends Agent {
 		return MarsUtil.buyAction("battery");
 		
 	}
-
-
-	private Action planWalk() {
+	
+	private Action planRandomWalk() {
 
 		LinkedList<LogicBelief> beliefs = getAllBeliefs("neighbor");
 		Vector<String> neighbors = new Vector<String>();
@@ -391,25 +390,19 @@ public class SimpleExplorerAgent extends Agent {
 		
 		if ( neighbors.size() == 0 ) {
 			println("strangely I do not know any neighbors");
-			return MarsUtil.rechargeAction();
+			return MarsUtil.skipAction();
 		}
-                
-		// Contribute to map coverage
-                // TODO: as attackers, we may want to go where our allies are attacking others. That needs to go before this logic.
-                int amountOfNeighbors = 10; // hopefully not so small
-                String nodeWithLessNeighbors;
-                for (String neighbor : neighbors) {
-                    int amount = mapGraph.degreeOf(neighbor);
-                    if (amount < amountOfNeighbors) {
-                        amountOfNeighbors = amount;
-                        nodeWithLessNeighbors = neighbor;
-                    }
-                }
-		String neighbor = neighbors.firstElement();
+		
+		// goto neighbors
+		Collections.shuffle(neighbors);
+		String LastIndex = neighbors.lastElement();
+		int MidleElement = neighbors.indexOf(LastIndex);
+		MidleElement = MidleElement/2;
+		String neighbor = neighbors.elementAt(MidleElement);
 		println("I will go to " + neighbor);
 		return MarsUtil.gotoAction(neighbor);
 		
-	}
+	}	/* LuVa Modifications */
 	/* Go to middle element of the index */
 	
 	/*	private Action planRandomWalk() {

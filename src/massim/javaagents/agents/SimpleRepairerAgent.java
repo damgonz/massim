@@ -395,32 +395,34 @@ public class SimpleRepairerAgent extends Agent {
     }
 
     private Action planWalk() {
+        List<String> pathVertexList = new ArrayList<String>();
+        String position = new String();
+        String agentName = new String();
+        double pathVertexListWeight = 1000;
 
-		LinkedList<LogicBelief> beliefs = getAllBeliefs("neighbor");
-		Vector<String> neighbors = new Vector<String>();
-		for ( LogicBelief b : beliefs ) {
-			neighbors.add(b.getParameters().firstElement());
-		}
-		
-		if ( neighbors.size() == 0 ) {
-			println("strangely I do not know any neighbors");
-			return MarsUtil.rechargeAction();
-		}
-                
-		// Contribute to map coverage
-                // TODO: as attackers, we may want to go where our allies are attacking others. That needs to go before this logic.
-                int amountOfNeighbors = 10; // hopefully not so small
-                String nodeWithLessNeighbors;
-                for (String neighbor : neighbors) {
-                    int amount = mapGraph.degreeOf(neighbor);
-                    if (amount < amountOfNeighbors) {
-                        amountOfNeighbors = amount;
-                        nodeWithLessNeighbors = neighbor;
+        LinkedList<LogicBelief> beliefs = getAllBeliefs("position");
+        if (beliefs.size() == 0) {
+            println("strangely I do not know my position");
+            return null;
+        }
+        position = beliefs.getFirst().getParameters().firstElement();
+        
+        if (!needyAgents.isEmpty() && !needyAgentsLocation.isEmpty()) {
+            for (int i = 0; i < needyAgentsLocation.size(); i++) {
+                    double pvlw = getShortestPathVertexListWeight(position,
+                            needyAgentsLocation.get(i));
+                    if (pvlw < pathVertexListWeight && pvlw >= 1.0) {
+                        pathVertexList = getShortestPathVertexList(position,
+                                needyAgentsLocation.get(i));
+                        agentName = needyAgents.get(i);
                     }
-                }
-		String neighbor = neighbors.firstElement();
-		println("I will go to " + neighbor);
-		return MarsUtil.gotoAction(neighbor);
-		
-	}
+            }
+            if (pathVertexList.size() >= 2) {
+                println("I am going to repair " + agentName + ". move to " + pathVertexList.get(1) + " first!.");
+                return MarsUtil.gotoAction(pathVertexList.get(1));
+            }
+        }
+
+        return null;
+    }
 }
