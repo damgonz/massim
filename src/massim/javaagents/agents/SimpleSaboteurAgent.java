@@ -55,6 +55,7 @@ public class SimpleSaboteurAgent extends Agent {
 		//if ( gatherSpecimens ) processSpecimens(percepts);
 		removeBeliefs("visibleEntity");
 		removeBeliefs("visibleEdge");
+                removeBeliefs("lastAction");
 		for ( Percept p : percepts ) {
                     /*
                     if (p.getName().equals("role")) {
@@ -101,6 +102,9 @@ public class SimpleSaboteurAgent extends Agent {
 			else if ( p.getName().equals("achievement") ) {
 				println("reached achievement " + p);
 			}
+                        else if (p.getName().equals("lastAction")) {
+                            addBelief (new LogicBelief("lastAction", p.getParameters().get(0).toString()));
+                        }
 		}
 		
 		// again for checking neighbors
@@ -124,18 +128,19 @@ public class SimpleSaboteurAgent extends Agent {
 		beliefs =  getAllBeliefs("energy");
 		if ( beliefs.size() == 0 ) {
 				println("strangely I do not know my energy");
-				return MarsUtil.skipAction();
+				return null;
 		}		
 		int energy = new Integer(beliefs.getFirst().getParameters().firstElement()).intValue();
 
 		beliefs =  getAllBeliefs("maxEnergy");
 		if ( beliefs.size() == 0 ) {
 				println("strangely I do not know my maxEnergy");
-				return MarsUtil.skipAction();
+				return null;
 		}		
 		int maxEnergy = new Integer(beliefs.getFirst().getParameters().firstElement()).intValue();
 
 		// if has the goal of being recharged...
+                /*
 		if ( goals.contains(new LogicGoal("beAtFullCharge")) ) {
 			if ( maxEnergy == energy ) {
 				println("I can stop recharging. I am at full charge");
@@ -148,12 +153,13 @@ public class SimpleSaboteurAgent extends Agent {
 		}
 		// go to recharge mode if necessary
 		else {
+                        */
 			if ( energy < maxEnergy / 3 ) {
 				println("I need to recharge");
-				goals.add(new LogicGoal("beAtFullCharge"));
+				//goals.add(new LogicGoal("beAtFullCharge")); /* Ignoring this goal, wastes one step */
 				return MarsUtil.rechargeAction();
 			}
-		}	
+		//}	
 		
 		return null;
 		
@@ -166,32 +172,52 @@ public class SimpleSaboteurAgent extends Agent {
 		beliefs =  getAllBeliefs("position");
 		if ( beliefs.size() == 0 ) {
 				println("strangely I do not know my position");
-				return MarsUtil.skipAction();
+				return null;
 		}
 		String position = beliefs.getFirst().getParameters().firstElement();
 
 		// if there is an enemy on the current position then attack or defend
 		Vector<String> enemies = new Vector<String>();
+                Vector<String> allies = new Vector<String>();
 		beliefs = getAllBeliefs("visibleEntity");
 		for ( LogicBelief b : beliefs ) {
 			String name = b.getParameters().get(0);
 			String pos = b.getParameters().get(1);
 			String team = b.getParameters().get(2);
-			if ( team.equals(getTeam()) ) continue;
+			if ( team.equals(getTeam()) ) {
+                            allies.add(name);
+                            continue;
+                        }
 			if ( pos.equals(position) == false ) continue;
 			enemies.add(name);
 		}
 		if ( enemies.size() != 0 ) {
 			println("there are " + enemies.size() + " enemies at my current position");
-			if ( Math.round(Math.random()) % 2 == 0) {
-				println("I will parry");
-				return MarsUtil.parryAction();
-			}
-			else {
-				Collections.shuffle(enemies);
+                        println("there are " + allies.size() + " allies at my current position");
+			if (allies.size() >= enemies.size()) {
+                            /* I will attack if there are more allies than enemies */
+                            /* TODO: will want to check for enemy energy if available to decide whom to attack */
+                                Collections.shuffle(enemies);
 				String enemy = enemies.firstElement();
 				println("I will attack " + enemy);
 				return MarsUtil.attackAction(enemy);
+			}
+			else {
+                            beliefs =  getAllBeliefs("lastAction");
+                            if (beliefs.size() != 0) {
+                                String last = beliefs.getFirst().getParameters().firstElement();
+                                if (last.equals("parry")) { 
+                                    /* If I parried last time and am still surrounded, get the heck out */
+                                    return null;
+                                } else {
+                                    /* Parry when surrounded */
+                                    println("I will parry");
+                                    return MarsUtil.parryAction();
+                                }
+                            } else {
+                                /* Shouldn't happen, but if I don't know what I did last, move */
+                                return null;
+                            }
 			}
 		}
 		

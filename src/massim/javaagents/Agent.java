@@ -63,8 +63,14 @@ public abstract class Agent {
     	agentsTeams = new HashMap<String,String>();
 	}
 
+        /* JGraphT representation of the world */
         protected static SimpleWeightedGraph<String, DefaultWeightedEdge> mapGraph = new SimpleWeightedGraph(DefaultWeightedEdge.class);
 
+        /* List of known vertex and their values */
+        /* TODO: Add list of vertex to decide where to go
+        protected static Map<String,int> knownVertex = new HashMap<String,int>;
+        */
+        
 	/**
 	 * Initializes an agent with a given name. Ensures that the name is unique.
 	 * @param name is the name of the agent
