@@ -46,7 +46,7 @@ public class SimpleInspectorAgent extends Agent {
 		if ( act != null ) return act;
 		
 		// 4. (almost) random walking
-		act = planRandomWalk();
+		act = planWalk();
 		if ( act != null ) return act;
 
 		return MarsUtil.skipAction();
@@ -278,7 +278,7 @@ public class SimpleInspectorAgent extends Agent {
 		
 	}
 
-	private Action planRandomWalk() {
+	private Action planWalk() {
 
 		LinkedList<LogicBelief> beliefs = getAllBeliefs("neighbor");
 		Vector<String> neighbors = new Vector<String>();
@@ -288,15 +288,23 @@ public class SimpleInspectorAgent extends Agent {
 		
 		if ( neighbors.size() == 0 ) {
 			println("strangely I do not know any neighbors");
-			return MarsUtil.skipAction();
+			return MarsUtil.rechargeAction();
 		}
-		
-		// goto neighbors
-		Collections.shuffle(neighbors);
+                
+		// Contribute to map coverage
+                // TODO: as attackers, we may want to go where our allies are attacking others. That needs to go before this logic.
+                int amountOfNeighbors = 10; // hopefully not so small
+                String nodeWithLessNeighbors;
+                for (String neighbor : neighbors) {
+                    int amount = mapGraph.degreeOf(neighbor);
+                    if (amount < amountOfNeighbors) {
+                        amountOfNeighbors = amount;
+                        nodeWithLessNeighbors = neighbor;
+                    }
+                }
 		String neighbor = neighbors.firstElement();
 		println("I will go to " + neighbor);
 		return MarsUtil.gotoAction(neighbor);
 		
 	}
-
 }
