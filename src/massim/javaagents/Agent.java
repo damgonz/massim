@@ -236,6 +236,15 @@ public abstract class Agent {
                                 String vertex1 = p.getParameters().get(0).toString();
                                 String vertex2 = p.getParameters().get(1).toString();
                                 if (!mapGraph.containsEdge(vertex1, vertex2)) {
+                                    // apparently we can perceive edges before vertex
+                                    if (!mapGraph.containsVertex(vertex1)) {
+                                        println (this.getName() + " adding vertex " + vertex1 + " to map");
+                                        mapGraph.addVertex(vertex1); // Ignoring which team occupies it
+                                    }
+                                    if (!mapGraph.containsVertex(vertex2)) {
+                                        println (this.getName() + " adding vertex " + vertex2 + " to map");
+                                        mapGraph.addVertex(vertex2); // Ignoring which team occupies it
+                                    }
                                     println (this.getName() + " adding edge " + vertex1 + " " + vertex2 + " to map");
                                     mapGraph.addEdge(vertex1, vertex2);
                                 }
