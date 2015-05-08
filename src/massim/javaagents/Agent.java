@@ -67,9 +67,7 @@ public abstract class Agent {
         protected static SimpleWeightedGraph<String, DefaultWeightedEdge> mapGraph = new SimpleWeightedGraph(DefaultWeightedEdge.class);
 
         /* List of known vertex and their values */
-        /* TODO: Add list of vertex to decide where to go
-        protected static Map<String,int> knownVertex = new HashMap<String,int>;
-        */
+        protected static Map<String,Integer> knownVertex = new HashMap<String,Integer>();
         
 	/**
 	 * Initializes an agent with a given name. Ensures that the name is unique.
@@ -225,33 +223,24 @@ public abstract class Agent {
 			}
 			
                         // contribute to creating the map.
-                        // TODO: No values are added for visible edges or vertices.
-                        //   That needs to be added in the "probe" action, most likely.
-                        // First add all visible vertices
                         for ( Percept p : ret ) {
+                            // Add all visible vertices
                             if ( p.getName().equals("visibleVertex")) {
                                 String vertexName = p.getParameters().get(0).toString();
                                 if (!mapGraph.containsVertex(vertexName)) {
                                     println (this.getName() + " adding vertex " + vertexName + " to map");
-                                    mapGraph.addVertex(vertexName); // assuming first argument is the vertex name
+                                    mapGraph.addVertex(vertexName); // Ignoring which team occupies it
                                 }
-                            }
-                        }
-                        // Then all visible edges
-                        for ( Percept p :ret ) {
-                            if ( p.getName().equals("visibleEdge")) {
+                            // Add all visible edges
+                            } else if ( p.getName().equals("visibleEdge")) {
                                 String vertex1 = p.getParameters().get(0).toString();
                                 String vertex2 = p.getParameters().get(1).toString();
                                 if (!mapGraph.containsEdge(vertex1, vertex2)) {
                                     println (this.getName() + " adding edge " + vertex1 + " " + vertex2 + " to map");
                                     mapGraph.addEdge(vertex1, vertex2);
                                 }
-                            }
-                        }
-
-                        // Now add weights to edges that have been surveyed
-                        for ( Percept p :ret ) {
-                            if ( p.getName().equals("surveyedEdge")) {
+                            // Add weights to edges that have been surveyed
+                            } else if ( p.getName().equals("surveyedEdge")) {
                                 String vertex1 = p.getParameters().get(0).toString();
                                 String vertex2 = p.getParameters().get(1).toString();
                                 double weight = Double.parseDouble(p.getParameters().get(2).toString());
@@ -268,6 +257,11 @@ public abstract class Agent {
                                 */
                                     println("Got weight for a non-existent edge!");
                                 }
+                            // Add previously unprobed vertices to vertex map -- not Graph!
+                            } else if (p.getName().equals("probedVertex")) {
+                                String vertex = p.getParameters().get(0).toString();
+                                Integer value = Integer.parseInt(p.getParameters().get(1).toString());
+                                knownVertex.putIfAbsent(vertex, value);
                             }
                         }
 

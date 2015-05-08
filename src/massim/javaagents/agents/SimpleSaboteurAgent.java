@@ -9,6 +9,9 @@ import apltk.interpreter.data.LogicBelief;
 import apltk.interpreter.data.LogicGoal;
 import eis.iilang.Action;
 import eis.iilang.Percept;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import massim.javaagents.Agent;
 
 public class SimpleSaboteurAgent extends Agent {
@@ -200,6 +203,7 @@ public class SimpleSaboteurAgent extends Agent {
                                 Collections.shuffle(enemies);
 				String enemy = enemies.firstElement();
 				println("I will attack " + enemy);
+                                /* TODO: Add logic to notify others of the attack, so they can join in if possible */
 				return MarsUtil.attackAction(enemy);
 			}
 			else {
@@ -228,22 +232,41 @@ public class SimpleSaboteurAgent extends Agent {
 			neighbors.add(b.getParameters().firstElement());
 		}
 		
-		Vector<String> vertices = new Vector<String>();
+		Map<String,Vector<String>> neighborEnemies = new HashMap<String, Vector<String>>();
 		beliefs = getAllBeliefs("visibleEntity");
 		for ( LogicBelief b : beliefs ) {
-			//String name = b.getParameters().get(0);
+			String name = b.getParameters().get(0);
 			String pos = b.getParameters().get(1);
 			String team = b.getParameters().get(2);
 			if ( team.equals(getTeam()) ) continue;
 			if ( neighbors.contains(pos) == false ) continue;
-			vertices.add(pos);
+                        if (!neighborEnemies.containsKey(pos)) {
+                            Vector<String> enemiesInVertex = new Vector<String>();
+                            enemiesInVertex.add(name);
+                            neighborEnemies.put(pos, enemiesInVertex);
+                        } else {
+                            Vector<String> enemiesInVertex = neighborEnemies.get(pos);
+                            enemiesInVertex.add(name);
+                        }
 		}
-		if ( vertices.size() != 0 ) {
-			println("there are " + vertices.size() + " adjacent vertices with enemies");
-			Collections.shuffle(vertices);
-			String vertex = vertices.firstElement();
-			println("I will goto " + vertex);
-			return MarsUtil.gotoAction(vertex);
+                
+		if ( neighborEnemies.size() != 0 ) {
+			println("there are " + neighborEnemies.size() + " enemies in adjacent vertices");
+                        /* Attack the loneliest */
+                        Vector <String> targetEnemies = null;
+                        Integer noOfEnemies = 29; /* can't ever be more than this */ 
+                        for(Entry<String, Vector<String>> entry : neighborEnemies.entrySet()) {
+                            if(entry.getValue().size() < noOfEnemies) {
+                                targetEnemies = entry.getValue(); // Not sure if the VM optimizes this, may want to store before instead
+                            }
+                        }
+			Collections.shuffle(targetEnemies);
+                        String enemy = targetEnemies.firstElement();
+			//String vertex = vertices.firstElement();
+			println("I will attack " + enemies);
+                        /* TODO: Notify others of the attack so they can join in */
+			//return MarsUtil.gotoAction(vertex);
+                        return MarsUtil.attackAction(enemy);
 		}
 		
 		return null;
@@ -269,5 +292,4 @@ public class SimpleSaboteurAgent extends Agent {
 		return MarsUtil.gotoAction(neighbor);
 		
 	}
-
 }
