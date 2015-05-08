@@ -395,10 +395,35 @@ public class SimpleExplorerAgent extends Agent {
 		
 		// goto neighbors
 		Collections.shuffle(neighbors);
+		String LastIndex = neighbors.lastElement();
+		int MidleElement = neighbors.indexOf(LastIndex);
+		MidleElemet = MidleElemet/2;
+		String neighbor = neighbors.elementAt(MidleElement);
+		println("I will go to " + neighbor);
+		return MarsUtil.gotoAction(neighbor);
+		
+	}	/* LuVa Modifications */
+	/* Go to middle element of the index */
+	
+	/*	private Action planRandomWalk() {
+
+		LinkedList<LogicBelief> beliefs = getAllBeliefs("neighbor");
+		Vector<String> neighbors = new Vector<String>();
+		for ( LogicBelief b : beliefs ) {
+			neighbors.add(b.getParameters().firstElement());
+		}
+		
+		if ( neighbors.size() == 0 ) {
+			println("strangely I do not know any neighbors");
+			return MarsUtil.skipAction();
+		}
+		
+		// goto neighbors
+		Collections.shuffle(neighbors);
 		String neighbor = neighbors.firstElement();
 		println("I will go to " + neighbor);
 		return MarsUtil.gotoAction(neighbor);
 		
-	}
+	}*/
 
 }
