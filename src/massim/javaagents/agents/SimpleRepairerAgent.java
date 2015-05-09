@@ -46,11 +46,11 @@ public class SimpleRepairerAgent extends Agent {
 
         // 2. repair if necessary
         /*if(state == NORMAL)
-        {*/
-            act = planRepair();
-            if (act != null) {
-                return act;
-            }
+         {*/
+        act = planRepair();
+        if (act != null) {
+            return act;
+        }
         //}
 
         // 3. buying battery with a certain probability
@@ -61,20 +61,20 @@ public class SimpleRepairerAgent extends Agent {
 
         // 4. surveying if necessary
         /*if(state == NORMAL)
-        {*/
-            act = planSurvey();
-            if (act != null) {
-                return act;
-            }
+         {*/
+        act = planSurvey();
+        if (act != null) {
+            return act;
+        }
         //}
 
         // 5. (almost) random walking
         /*if(state == NORMAL)
-        {*/
-            act = planWalk();
-            if (act != null) {
-                return act;
-            }
+         {*/
+        act = planWalk();
+        if (act != null) {
+            return act;
+        }
         //}
 
         return null;
@@ -164,8 +164,7 @@ public class SimpleRepairerAgent extends Agent {
                     println("my health is zero. asking for help");
                     state = DISABLED;
                     broadcastBelief(new LogicBelief("iAmDisabled", position));
-                }
-                else {
+                } else {
                     state = NORMAL;
                 }
                 // This is where we start our calculation of how to get somewhere.
@@ -373,7 +372,7 @@ public class SimpleRepairerAgent extends Agent {
                 neighbors.add(vertex1);
             }
         }
-        
+
         beliefs.clear();
         beliefs = getAllBeliefs("visibleEntity");
         for (LogicBelief b : beliefs) {
@@ -406,23 +405,49 @@ public class SimpleRepairerAgent extends Agent {
             return null;
         }
         position = beliefs.getFirst().getParameters().firstElement();
-        
+
         if (!needyAgents.isEmpty() && !needyAgentsLocation.isEmpty()) {
             for (int i = 0; i < needyAgentsLocation.size(); i++) {
-                    double pvlw = getShortestPathVertexListWeight(position,
+                double pvlw = getShortestPathVertexListWeight(position,
+                        needyAgentsLocation.get(i));
+                if (pvlw < pathVertexListWeight && pvlw >= 1.0) {
+                    pathVertexList = getShortestPathVertexList(position,
                             needyAgentsLocation.get(i));
-                    if (pvlw < pathVertexListWeight && pvlw >= 1.0) {
-                        pathVertexList = getShortestPathVertexList(position,
-                                needyAgentsLocation.get(i));
-                        agentName = needyAgents.get(i);
-                    }
+                    agentName = needyAgents.get(i);
+                }
             }
             if (pathVertexList.size() >= 2) {
                 println("I am going to repair " + agentName + ". move to " + pathVertexList.get(1) + " first!.");
                 return MarsUtil.gotoAction(pathVertexList.get(1));
             }
-        }
+        } else {
+            beliefs.clear();
+            beliefs = getAllBeliefs("neighbor");
+            Vector<String> neighbors = new Vector<String>();
+            for (LogicBelief b : beliefs) {
+                neighbors.add(b.getParameters().firstElement());
+            }
 
+            if (neighbors.size() == 0) {
+                println("strangely I do not know any neighbors");
+                return MarsUtil.rechargeAction();
+            }
+
+		// Contribute to map coverage
+            // TODO: as attackers, we may want to go where our allies are attacking others. That needs to go before this logic.
+            int amountOfNeighbors = 10; // hopefully not so small
+            String nodeWithLessNeighbors;
+            for (String neighbor : neighbors) {
+                int amount = mapGraph.degreeOf(neighbor);
+                if (amount < amountOfNeighbors) {
+                    amountOfNeighbors = amount;
+                    nodeWithLessNeighbors = neighbor;
+                }
+            }
+            String neighbor = neighbors.firstElement();
+            println("I will go to " + neighbor);
+            return MarsUtil.gotoAction(neighbor);
+        }
         return null;
     }
 }
